@@ -126,7 +126,29 @@ contact-management-app/
 
 ## Screenshots
 
-(Add screenshots here if you want)
+### Authentication
+<div style="display: flex; gap: 10px;">
+  <img src="screenshots/login-page.png" width="400" alt="Login Page">
+  <img src="screenshots/register-page.png" width="400" alt="Register Page">
+</div>
+
+### Dashboard
+<div style="display: flex; gap: 10px;">
+  <img src="screenshots/dashboard-with-contacts.png" width="800" alt="Dashboard with Contacts">
+  <img src="screenshots/dashboard-empty.png" width="800" alt="Dashboard with Contacts">
+</div>
+
+### Contact Management
+<div style="display: flex; gap: 10px;">
+  <img src="screenshots/add-contact.png" width="400" alt="Add Contact">
+  <img src="screenshots/edit-contact.png" width="400" alt="Edit Contact">
+</div>
+
+### Search & Filter
+<div style="display: flex; gap: 10px;">
+  <img src="screenshots/search-by-email.png" width="800" alt="Search Results">
+  <img src="screenshots/search-by-name.png" width="800" alt="Search Results">
+</div>
 
 ## Future Enhancements
 
@@ -137,7 +159,7 @@ contact-management-app/
 
 ## Author
 
-Khassan Sule
+Khassan Suleimanov
 
 ## License
 
