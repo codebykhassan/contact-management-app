@@ -26,15 +26,12 @@ export default function DashboardPage() {
     const [sortBy, setSortBy] = useState('createdAt');
     const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
 
-    // Modal states
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
     useEffect(() => {
-        if (!authLoading && !user) {
-            router.push('/login');
-        }
+        if (!authLoading && !user) router.push('/login');
     }, [user, authLoading, router]);
 
     const fetchContacts = async () => {
@@ -86,10 +83,12 @@ export default function DashboardPage() {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
             {/* Header */}
             <header className="bg-white/80 backdrop-blur-md shadow-md border-b border-blue-100">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-extrabold text-blue-700">Contact Dashboard</h1>
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm text-gray-600">{user.email}</span>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <h1 className="text-2xl font-extrabold text-blue-700 text-center sm:text-left">
+                        Contact Dashboard
+                    </h1>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-center sm:text-left">
+                        <span className="text-sm text-gray-600 break-all">{user.email}</span>
                         <button
                             onClick={logout}
                             className="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition shadow-sm hover:shadow-md"
@@ -100,11 +99,11 @@ export default function DashboardPage() {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-6 py-8">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 {/* Controls */}
-                <div className="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-blue-100 mb-8">
-                    <div className="flex flex-wrap gap-4 items-center justify-between">
-                        <div className="flex-1 min-w-[200px]">
+                <div className="bg-white/90 backdrop-blur-md p-4 sm:p-6 rounded-2xl shadow-lg border border-blue-100 mb-8">
+                    <div className="flex flex-col md:flex-row flex-wrap gap-4 md:items-center md:justify-between">
+                        <div className="w-full md:flex-1">
                             <input
                                 type="text"
                                 placeholder="🔍 Search by name or email..."
@@ -113,15 +112,15 @@ export default function DashboardPage() {
                                     setSearch(e.target.value);
                                     setPage(1);
                                 }}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
                             />
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-between sm:justify-start">
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 sm:flex-none px-3 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 <option value="createdAt">Sort by Date</option>
                                 <option value="name">Sort by Name</option>
@@ -134,14 +133,14 @@ export default function DashboardPage() {
                             >
                                 {sortOrder === 'ASC' ? '↑' : '↓'}
                             </button>
-                        </div>
 
-                        <button
-                            onClick={() => setShowAddModal(true)}
-                            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-sm hover:shadow-md"
-                        >
-                            + Add Contact
-                        </button>
+                            <button
+                                onClick={() => setShowAddModal(true)}
+                                className="flex-1 sm:flex-none px-5 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-sm hover:shadow-md"
+                            >
+                                + Add Contact
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -187,7 +186,7 @@ export default function DashboardPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex gap-2 mt-4">
+                                    <div className="flex flex-col sm:flex-row gap-2 mt-4">
                                         <button
                                             onClick={() => handleEdit(contact)}
                                             className="flex-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm"
@@ -206,7 +205,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Pagination */}
-                        <div className="flex justify-center items-center gap-4 mt-8">
+                        <div className="flex flex-wrap justify-center items-center gap-3 mt-8">
                             <button
                                 onClick={() => setPage(page - 1)}
                                 disabled={page === 1}
@@ -214,7 +213,7 @@ export default function DashboardPage() {
                             >
                                 Previous
                             </button>
-                            <span className="text-gray-700">
+                            <span className="text-gray-700 text-sm sm:text-base">
                                 Page {page} of {totalPages}
                             </span>
                             <button
@@ -256,7 +255,69 @@ export default function DashboardPage() {
     );
 }
 
-/* === Add & Edit Modals (Styled same way) === */
+/* === MODALS === */
+function ModalWrapper({ title, children, onClose }: any) {
+    return (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-2">
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-6 w-full max-w-md shadow-lg border border-blue-100 mx-2 sm:mx-0">
+                <h2 className="text-xl font-bold text-blue-700 mb-4 text-center">{title}</h2>
+                {children}
+            </div>
+        </div>
+    );
+}
+
+function Input({ label, value, setValue, type = 'text' }: any) {
+    return (
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+            <input
+                type={type}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                required
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+        </div>
+    );
+}
+
+function FileInput({ label, setFile }: any) {
+    return (
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+            <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+        </div>
+    );
+}
+
+function ModalButtons({ onClose, loading, label }: any) {
+    return (
+        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+            <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-red-50 active:bg-red-100"
+            >
+                Cancel
+            </button>
+            <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+            >
+                {loading ? 'Saving...' : label}
+            </button>
+        </div>
+    );
+}
+
+/* === AddContactModal === */
 function AddContactModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -296,6 +357,7 @@ function AddContactModal({ onClose, onSuccess }: { onClose: () => void; onSucces
     );
 }
 
+/* === EditContactModal === */
 function EditContactModal({
     contact,
     onClose,
@@ -342,67 +404,5 @@ function EditContactModal({
                 <ModalButtons onClose={onClose} loading={loading} label="Update Contact" />
             </form>
         </ModalWrapper>
-    );
-}
-
-/* === Shared modal components === */
-function ModalWrapper({ title, children, onClose }: any) {
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-6 w-full max-w-md shadow-lg border border-blue-100">
-                <h2 className="text-xl font-bold text-blue-700 mb-4">{title}</h2>
-                {children}
-            </div>
-        </div>
-    );
-}
-
-function Input({ label, value, setValue, type = 'text' }: any) {
-    return (
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-            <input
-                type={type}
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-        </div>
-    );
-}
-
-function FileInput({ label, setFile }: any) {
-    return (
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-            <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-        </div>
-    );
-}
-
-function ModalButtons({ onClose, loading, label }: any) {
-    return (
-        <div className="flex gap-2">
-            <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-red-500 text-gray-700"
-            >
-                Cancel
-            </button>
-            <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-            >
-                {loading ? 'Saving...' : label}
-            </button>
-        </div>
     );
 }
