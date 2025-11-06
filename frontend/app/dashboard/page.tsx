@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { ReactNode, FormEvent, Dispatch, SetStateAction } from "react";
 
 interface Contact {
     id: number;
@@ -256,10 +257,23 @@ export default function DashboardPage() {
 }
 
 /* === MODALS === */
-function ModalWrapper({ title, children, onClose }: any) {
+interface ModalWrapperProps {
+    title: string;
+    children: ReactNode;
+    onClose: () => void;
+}
+
+function ModalWrapper({ title, children, onClose }: ModalWrapperProps) {
     return (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-2">
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-6 w-full max-w-md shadow-lg border border-blue-100 mx-2 sm:mx-0">
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-6 w-full max-w-md shadow-lg border border-blue-100 mx-2 sm:mx-0 relative">
+                <button
+                    onClick={onClose}
+                    className="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-lg"
+                    aria-label="Close"
+                >
+                    ✕
+                </button>
                 <h2 className="text-xl font-bold text-blue-700 mb-4 text-center">{title}</h2>
                 {children}
             </div>
@@ -267,7 +281,14 @@ function ModalWrapper({ title, children, onClose }: any) {
     );
 }
 
-function Input({ label, value, setValue, type = 'text' }: any) {
+interface InputProps {
+    label: string;
+    value: string;
+    setValue: Dispatch<SetStateAction<string>>;
+    type?: string;
+}
+
+function Input({ label, value, setValue, type = "text" }: InputProps) {
     return (
         <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
@@ -282,7 +303,12 @@ function Input({ label, value, setValue, type = 'text' }: any) {
     );
 }
 
-function FileInput({ label, setFile }: any) {
+interface FileInputProps {
+    label: string;
+    setFile: Dispatch<SetStateAction<File | null>>;
+}
+
+function FileInput({ label, setFile }: FileInputProps) {
     return (
         <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
@@ -296,7 +322,13 @@ function FileInput({ label, setFile }: any) {
     );
 }
 
-function ModalButtons({ onClose, loading, label }: any) {
+interface ModalButtonsProps {
+    onClose: () => void;
+    loading: boolean;
+    label: string;
+}
+
+function ModalButtons({ onClose, loading, label }: ModalButtonsProps) {
     return (
         <div className="flex flex-col sm:flex-row gap-3 mt-4">
             <button
@@ -311,34 +343,47 @@ function ModalButtons({ onClose, loading, label }: any) {
                 disabled={loading}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
             >
-                {loading ? 'Saving...' : label}
+                {loading ? "Saving..." : label}
             </button>
         </div>
     );
 }
 
 /* === AddContactModal === */
-function AddContactModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
+interface AddContactModalProps {
+    onClose: () => void;
+    onSuccess: () => void;
+}
+
+function AddContactModal({ onClose, onSuccess }: AddContactModalProps) {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
     const [photo, setPhoto] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
+
         try {
             const formData = new FormData();
-            formData.append('name', name);
-            formData.append('email', email);
-            formData.append('phone', phone);
-            if (photo) formData.append('photo', photo);
-            await api.post('/contacts', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-            alert('Contact added successfully!');
+            formData.append("name", name);
+            formData.append("email", email);
+            formData.append("phone", phone);
+            if (photo) formData.append("photo", photo);
+
+            await api.post("/contacts", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            alert('Contact added successfully');
             onSuccess();
-        } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to add contact');
+        } catch (error) {
+            console.error('Error adding contact:', error);
+            alert('Failed to add contact');
         } finally {
             setLoading(false);
         }
@@ -349,8 +394,8 @@ function AddContactModal({ onClose, onSuccess }: { onClose: () => void; onSucces
             <form onSubmit={handleSubmit} className="space-y-4">
                 <Input label="Name" value={name} setValue={setName} />
                 <Input label="Email" value={email} setValue={setEmail} type="email" />
-                <Input label="Phone" value={phone} setValue={setPhone} type="tel" />
-                <FileInput label="Photo (optional)" setFile={setPhoto} />
+                <Input label="Phone" value={phone} setValue={setPhone} />
+                <FileInput label="Photo" setFile={setPhoto} />
                 <ModalButtons onClose={onClose} loading={loading} label="Add Contact" />
             </form>
         </ModalWrapper>
@@ -358,37 +403,41 @@ function AddContactModal({ onClose, onSuccess }: { onClose: () => void; onSucces
 }
 
 /* === EditContactModal === */
-function EditContactModal({
-    contact,
-    onClose,
-    onSuccess,
-}: {
+interface EditContactModalProps {
     contact: Contact;
     onClose: () => void;
     onSuccess: () => void;
-}) {
+}
+
+function EditContactModal({ contact, onClose, onSuccess }: EditContactModalProps) {
     const [name, setName] = useState(contact.name);
     const [email, setEmail] = useState(contact.email);
     const [phone, setPhone] = useState(contact.phone);
     const [photo, setPhoto] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
+
         try {
             const formData = new FormData();
-            formData.append('name', name);
-            formData.append('email', email);
-            formData.append('phone', phone);
-            if (photo) formData.append('photo', photo);
+            formData.append("name", name);
+            formData.append("email", email);
+            formData.append("phone", phone);
+            if (photo) formData.append("photo", photo);
+
             await api.put(`/contacts/${contact.id}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
-            alert('Contact updated successfully!');
+
+            alert('Contact updated successfully');
             onSuccess();
-        } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to update contact');
+        } catch (error) {
+            console.error('Error updating contact:', error);
+            alert('Failed to update contact');
         } finally {
             setLoading(false);
         }
@@ -399,8 +448,8 @@ function EditContactModal({
             <form onSubmit={handleSubmit} className="space-y-4">
                 <Input label="Name" value={name} setValue={setName} />
                 <Input label="Email" value={email} setValue={setEmail} type="email" />
-                <Input label="Phone" value={phone} setValue={setPhone} type="tel" />
-                <FileInput label="Change Photo (optional)" setFile={setPhoto} />
+                <Input label="Phone" value={phone} setValue={setPhone} />
+                <FileInput label="Update Photo" setFile={setPhoto} />
                 <ModalButtons onClose={onClose} loading={loading} label="Update Contact" />
             </form>
         </ModalWrapper>
