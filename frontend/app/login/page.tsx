@@ -24,27 +24,32 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-                <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
+            <div className="w-full max-w-md p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-blue-100">
+                <h1 className="text-3xl font-extrabold text-center text-blue-700 mb-2">
+                    Welcome Back
+                </h1>
+                <p className="text-center text-gray-500 mb-6">
+                    Please log in to your account
+                </p>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                            Email Address
                         </label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-400"
                             placeholder="your@email.com"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">
                             Password
                         </label>
                         <input
@@ -53,7 +58,7 @@ export default function LoginPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             minLength={6}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-400"
                             placeholder="••••••••"
                         />
                     </div>
@@ -61,18 +66,22 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+                        className="w-full py-3 text-white bg-blue-600 font-semibold rounded-lg hover:bg-blue-700 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                     >
                         {loading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
 
-                <p className="mt-4 text-center text-sm text-gray-600">
+                <p className="mt-6 text-center text-sm text-gray-600">
                     Don&apos;t have an account?{' '}
-                    <Link href="/register" className="text-blue-600 hover:underline">
-                        Register here
+                    <Link href="/register" className="text-blue-600 font-semibold hover:underline">
+                        Register
                     </Link>
                 </p>
+
+                <div className="mt-8 text-center text-xs text-gray-400">
+                    © {new Date().getFullYear()} Contacts-App. All rights reserved.
+                </div>
             </div>
         </div>
     );

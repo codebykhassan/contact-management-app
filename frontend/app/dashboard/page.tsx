@@ -31,25 +31,17 @@ export default function DashboardPage() {
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
-    // Redirect if not logged in
     useEffect(() => {
         if (!authLoading && !user) {
             router.push('/login');
         }
     }, [user, authLoading, router]);
 
-    // Fetch contacts
     const fetchContacts = async () => {
         try {
             setLoading(true);
             const response = await api.get('/contacts', {
-                params: {
-                    page,
-                    limit: 10,
-                    search: search || undefined,
-                    sortBy,
-                    sortOrder,
-                },
+                params: { page, limit: 10, search: search || undefined, sortBy, sortOrder },
             });
             setContacts(response.data.data);
             setTotalPages(response.data.totalPages);
@@ -62,17 +54,11 @@ export default function DashboardPage() {
     };
 
     useEffect(() => {
-        if (user) {
-            fetchContacts();
-        }
+        if (user) fetchContacts();
     }, [user, page, search, sortBy, sortOrder]);
 
-    // Delete contact
     const handleDelete = async (id: number) => {
-        if (!confirm('Are you sure you want to delete this contact?')) {
-            return;
-        }
-
+        if (!confirm('Are you sure you want to delete this contact?')) return;
         try {
             await api.delete(`/contacts/${id}`);
             alert('Contact deleted successfully');
@@ -83,7 +69,6 @@ export default function DashboardPage() {
         }
     };
 
-    // Edit contact
     const handleEdit = (contact: Contact) => {
         setSelectedContact(contact);
         setShowEditModal(true);
@@ -91,23 +76,23 @@ export default function DashboardPage() {
 
     if (authLoading || !user) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <p className="text-lg">Loading...</p>
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
+                <p className="text-lg text-gray-700">Loading...</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
             {/* Header */}
-            <header className="bg-white shadow">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-900">Contact Management</h1>
+            <header className="bg-white/80 backdrop-blur-md shadow-md border-b border-blue-100">
+                <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                    <h1 className="text-2xl font-extrabold text-blue-700">Contact Dashboard</h1>
                     <div className="flex items-center gap-4">
                         <span className="text-sm text-gray-600">{user.email}</span>
                         <button
                             onClick={logout}
-                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                            className="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition shadow-sm hover:shadow-md"
                         >
                             Logout
                         </button>
@@ -115,30 +100,28 @@ export default function DashboardPage() {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main className="max-w-7xl mx-auto px-6 py-8">
                 {/* Controls */}
-                <div className="bg-white p-4 rounded-lg shadow mb-6">
+                <div className="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-blue-100 mb-8">
                     <div className="flex flex-wrap gap-4 items-center justify-between">
-                        {/* Search */}
                         <div className="flex-1 min-w-[200px]">
                             <input
                                 type="text"
-                                placeholder="Search by name or email..."
+                                placeholder="🔍 Search by name or email..."
                                 value={search}
                                 onChange={(e) => {
                                     setSearch(e.target.value);
-                                    setPage(1); // Reset to first page on search
+                                    setPage(1);
                                 }}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
                             />
                         </div>
 
-                        {/* Sort */}
                         <div className="flex gap-2">
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="px-3 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 <option value="createdAt">Sort by Date</option>
                                 <option value="name">Sort by Name</option>
@@ -147,39 +130,38 @@ export default function DashboardPage() {
 
                             <button
                                 onClick={() => setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC')}
-                                className="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"
                             >
                                 {sortOrder === 'ASC' ? '↑' : '↓'}
                             </button>
                         </div>
 
-                        {/* Add button */}
                         <button
                             onClick={() => setShowAddModal(true)}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-sm hover:shadow-md"
                         >
                             + Add Contact
                         </button>
                     </div>
                 </div>
 
-                {/* Contacts List */}
+                {/* Contact Cards */}
                 {loading ? (
-                    <div className="text-center py-8">
-                        <p className="text-gray-600">Loading contacts...</p>
-                    </div>
+                    <div className="text-center py-12 text-gray-600">Loading contacts...</div>
                 ) : contacts.length === 0 ? (
-                    <div className="bg-white p-8 rounded-lg shadow text-center">
+                    <div className="bg-white/90 backdrop-blur-md p-10 rounded-2xl shadow text-center border border-blue-100">
                         <p className="text-gray-600">No contacts found. Add your first contact!</p>
                     </div>
                 ) : (
                     <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {contacts.map((contact) => (
-                                <div key={contact.id} className="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
+                                <div
+                                    key={contact.id}
+                                    className="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow hover:shadow-lg border border-blue-100 transition"
+                                >
                                     <div className="flex items-start gap-4">
-                                        {/* Photo */}
-                                        <div className="w-16 h-16 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
+                                        <div className="w-16 h-16 rounded-full bg-blue-100 flex-shrink-0 overflow-hidden">
                                             {contact.photo ? (
                                                 <img
                                                     src={`http://localhost:4000${contact.photo}`}
@@ -187,15 +169,14 @@ export default function DashboardPage() {
                                                     className="w-full h-full object-cover"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-gray-400">
+                                                <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-blue-600">
                                                     {contact.name.charAt(0).toUpperCase()}
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* Info */}
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-lg font-semibold text-gray-900 truncate">
+                                            <h3 className="text-lg font-semibold text-blue-800 truncate">
                                                 {contact.name}
                                             </h3>
                                             <p className="text-sm text-gray-600 truncate">{contact.email}</p>
@@ -206,17 +187,16 @@ export default function DashboardPage() {
                                         </div>
                                     </div>
 
-                                    {/* Actions */}
                                     <div className="flex gap-2 mt-4">
                                         <button
                                             onClick={() => handleEdit(contact)}
-                                            className="flex-1 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition text-sm"
+                                            className="flex-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm"
                                         >
                                             Edit
                                         </button>
                                         <button
                                             onClick={() => handleDelete(contact.id)}
-                                            className="flex-1 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition text-sm"
+                                            className="flex-1 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm"
                                         >
                                             Delete
                                         </button>
@@ -226,11 +206,11 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Pagination */}
-                        <div className="flex justify-center items-center gap-4 mt-6">
+                        <div className="flex justify-center items-center gap-4 mt-8">
                             <button
                                 onClick={() => setPage(page - 1)}
                                 disabled={page === 1}
-                                className="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-4 py-2 text-black bg-white/80 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
                             >
                                 Previous
                             </button>
@@ -240,7 +220,7 @@ export default function DashboardPage() {
                             <button
                                 onClick={() => setPage(page + 1)}
                                 disabled={page === totalPages}
-                                className="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-4 py-2 text-black bg-white/80 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
                             >
                                 Next
                             </button>
@@ -249,7 +229,6 @@ export default function DashboardPage() {
                 )}
             </main>
 
-            {/* Add Contact Modal */}
             {showAddModal && (
                 <AddContactModal
                     onClose={() => setShowAddModal(false)}
@@ -259,8 +238,6 @@ export default function DashboardPage() {
                     }}
                 />
             )}
-
-            {/* Edit Contact Modal */}
             {showEditModal && selectedContact && (
                 <EditContactModal
                     contact={selectedContact}
@@ -279,7 +256,7 @@ export default function DashboardPage() {
     );
 }
 
-// Add Contact Modal Component
+/* === Add & Edit Modals (Styled same way) === */
 function AddContactModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -290,24 +267,16 @@ function AddContactModal({ onClose, onSuccess }: { onClose: () => void; onSucces
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-
         try {
             const formData = new FormData();
             formData.append('name', name);
             formData.append('email', email);
             formData.append('phone', phone);
-            if (photo) {
-                formData.append('photo', photo);
-            }
-
-            await api.post('/contacts', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-
+            if (photo) formData.append('photo', photo);
+            await api.post('/contacts', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             alert('Contact added successfully!');
             onSuccess();
         } catch (error: any) {
-            console.error('Error adding contact:', error);
             alert(error.response?.data?.message || 'Failed to add contact');
         } finally {
             setLoading(false);
@@ -315,77 +284,18 @@ function AddContactModal({ onClose, onSuccess }: { onClose: () => void; onSucces
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                <h2 className="text-xl font-bold mb-4">Add New Contact</h2>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                        <input
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Photo (optional)</label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setPhoto(e.target.files?.[0] || null)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-                        >
-                            {loading ? 'Adding...' : 'Add Contact'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <ModalWrapper title="Add New Contact" onClose={onClose}>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <Input label="Name" value={name} setValue={setName} />
+                <Input label="Email" value={email} setValue={setEmail} type="email" />
+                <Input label="Phone" value={phone} setValue={setPhone} type="tel" />
+                <FileInput label="Photo (optional)" setFile={setPhoto} />
+                <ModalButtons onClose={onClose} loading={loading} label="Add Contact" />
+            </form>
+        </ModalWrapper>
     );
 }
 
-// Edit Contact Modal Component
 function EditContactModal({
     contact,
     onClose,
@@ -404,24 +314,18 @@ function EditContactModal({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-
         try {
             const formData = new FormData();
             formData.append('name', name);
             formData.append('email', email);
             formData.append('phone', phone);
-            if (photo) {
-                formData.append('photo', photo);
-            }
-
+            if (photo) formData.append('photo', photo);
             await api.put(`/contacts/${contact.id}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-
             alert('Contact updated successfully!');
             onSuccess();
         } catch (error: any) {
-            console.error('Error updating contact:', error);
             alert(error.response?.data?.message || 'Failed to update contact');
         } finally {
             setLoading(false);
@@ -429,74 +333,76 @@ function EditContactModal({
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                <h2 className="text-xl font-bold mb-4">Edit Contact</h2>
+        <ModalWrapper title="Edit Contact" onClose={onClose}>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <Input label="Name" value={name} setValue={setName} />
+                <Input label="Email" value={email} setValue={setEmail} type="email" />
+                <Input label="Phone" value={phone} setValue={setPhone} type="tel" />
+                <FileInput label="Change Photo (optional)" setFile={setPhoto} />
+                <ModalButtons onClose={onClose} loading={loading} label="Update Contact" />
+            </form>
+        </ModalWrapper>
+    );
+}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                        <input
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Change Photo (optional)
-                        </label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setPhoto(e.target.files?.[0] || null)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-                        >
-                            {loading ? 'Updating...' : 'Update Contact'}
-                        </button>
-                    </div>
-                </form>
+/* === Shared modal components === */
+function ModalWrapper({ title, children, onClose }: any) {
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-6 w-full max-w-md shadow-lg border border-blue-100">
+                <h2 className="text-xl font-bold text-blue-700 mb-4">{title}</h2>
+                {children}
             </div>
+        </div>
+    );
+}
+
+function Input({ label, value, setValue, type = 'text' }: any) {
+    return (
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+            <input
+                type={type}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+        </div>
+    );
+}
+
+function FileInput({ label, setFile }: any) {
+    return (
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+            <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+        </div>
+    );
+}
+
+function ModalButtons({ onClose, loading, label }: any) {
+    return (
+        <div className="flex gap-2">
+            <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-red-500 text-gray-700"
+            >
+                Cancel
+            </button>
+            <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+            >
+                {loading ? 'Saving...' : label}
+            </button>
         </div>
     );
 }
